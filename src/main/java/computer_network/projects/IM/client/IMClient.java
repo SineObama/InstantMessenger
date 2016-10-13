@@ -69,7 +69,7 @@ class Receiver extends Thread {
 				Message message = connector.receive();
 				switch (message.type) {
 				case error:
-					printStream.println("服务器返回错误信息：" + message.text);
+					printStream.println("服务器返回错误信息 \"" + message.text + "\"");
 					break;
 				case login:
 				case send:

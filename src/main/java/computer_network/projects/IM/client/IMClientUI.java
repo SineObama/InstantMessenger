@@ -15,23 +15,19 @@ public class IMClientUI {
 		String userInput;
 		IMClient client = new IMClient(args[0], args[1]);
 		try {
-			outer: while ((userInput = stdIn.readLine()) != null) {
-				switch (userInput) {
-				case "exit":
+			while ((userInput = stdIn.readLine()) != null) {
+				if (userInput.equals("exit")) {
 					client.exit();
-					break outer;
-				case "login":
-					client.login(stdIn.readLine());
 					break;
-				case "logout":
+				} else if (userInput.equals("logout")) {
 					client.logout();
-					break;
-				case "msg":
-					client.send(stdIn.readLine(), stdIn.readLine());
-					break;
-				default:
+				} else if (userInput.startsWith("login ")) {
+					client.login(userInput.substring(6));
+				} else if (userInput.startsWith("send ")) {
+					String[] strings = userInput.split(" ");
+					client.send(strings[1], userInput.substring(6 + strings[1].length()));
+				} else {
 					System.out.println("指令错误");
-					break;
 				}
 			}
 		} catch (IOException e) {
