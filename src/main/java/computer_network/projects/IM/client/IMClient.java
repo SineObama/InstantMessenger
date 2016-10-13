@@ -1,8 +1,8 @@
 package computer_network.projects.IM.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.SocketException;
 
 import computer_network.projects.IM.network.ChatMessage;
 import computer_network.projects.IM.network.Connector;
@@ -11,83 +11,80 @@ import computer_network.projects.IM.network.Socket;
 import computer_network.projects.IM.network.Type;
 
 public class IMClient {
+	private Connector connector = null;
+	private Receiver receiver = null;
+	private String ip;
+	private int port;
 
-	public static void main(String[] args) throws Exception {
-		Socket socket = new Socket("127.0.0.1", Integer.parseInt(args[0]));
-		System.out.println("当前socket信息：" + socket);
-		Connector connector = new Connector(socket);
+	public IMClient(String ip, String port) {
+		this.ip = ip;
+		this.port = Integer.parseInt(port);
+	}
 
-		new Receiver(connector).start();
-
-		// 在控制台接受用户指令等
-		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-		String userInput;
-		try {
-			outer: while ((userInput = stdIn.readLine()) != null) {
-				switch (userInput) {
-				case "exit":
-					connector.send(new Message(Type.exit, "OK"));
-					break outer;
-				case "login":
-					userInput = stdIn.readLine();
-					connector.send(new Message(Type.login, userInput));
-					break;
-				case "logout":
-					connector.send(new Message(Type.logout, "OK"));
-					break;
-				case "msg":
-					ChatMessage chatMessage = new ChatMessage();
-					chatMessage.name = stdIn.readLine();
-					chatMessage.text = stdIn.readLine();
-					connector.send(new Message(Type.message, chatMessage.toString()));
-					break;
-				default:
-					System.out.println("指令错误");
-					break;
-				}
-				// if (userInput.equals("exit"))
-				// break;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void login(String username) throws IOException {
+		if (connector == null) {
+			connector = new Connector(new Socket(ip, port));
+			receiver = new Receiver(connector);
+			receiver.start();
 		}
+		connector.send(new Message(Type.login, username));
+	}
 
-		stdIn.close();
+	public void send(String name, String msg) throws IOException {
+		if (connector != null)
+			connector.send(new Message(Type.send, new ChatMessage(name, msg).toString()));
+	}
+
+	public void logout() throws IOException {
+		if (connector == null)
+			return;
+		connector.send(new Message(Type.logout, "OK"));
 		connector.close();
+		connector = null;
+	}
+
+	public void exit() throws IOException {
+		logout();
 	}
 }
 
 class Receiver extends Thread {
-	private Connector c;
+	public static final PrintStream printStream = System.out;
 
-	public Receiver(Connector _c) {
-		c = _c;
+	private Connector connector;
+	private boolean done = false;
+
+	public Receiver(Connector c) {
+		this.connector = c;
+	}
+
+	public void exit() {
+		done = true;
 	}
 
 	@Override
 	public void run() {
 		try {
-			while (true) {
-				Message message=c.receive();
+			while (!done) {
+				Message message = connector.receive();
 				switch (message.type) {
 				case error:
-					System.out.println("服务器返回错误信息：" + message.text);
+					printStream.println("服务器返回错误信息：" + message.text);
 					break;
 				case login:
-					System.out.println("登录成功");
+				case send:
+					printStream.println(message.text);
 					break;
-				case logout:
-					System.out.println("登出成功");
-					break;
-				case message:
+				case receive:
 					ChatMessage chatMessage = ChatMessage.fromString(message.text);
-					System.out.println(chatMessage.name + " 光明正大地对你说: " + chatMessage.text);
+					printStream.println("[" + chatMessage.name + "]对你说: " + chatMessage.text);
 					break;
 				default:
 					break;
 				}
 			}
+		} catch (SocketException e) {
+			// TODO 此处只当做主动断开连接，退出线程
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
