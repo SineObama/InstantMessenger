@@ -8,6 +8,8 @@ import java.io.OutputStream;
 
 public class Connector {
 	private Socket socket;
+	
+	// 不知道这整个的用法对不对
 	private OutputStream o;
 	private InputStream i;
 
