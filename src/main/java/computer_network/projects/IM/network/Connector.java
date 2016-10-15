@@ -46,4 +46,12 @@ public class Connector {
 		o.close();
 		socket.close();
 	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		// 似乎没什么用？
+		close();
+		super.finalize();
+	}
+	
 }
