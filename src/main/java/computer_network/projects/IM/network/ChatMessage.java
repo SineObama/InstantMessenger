@@ -16,7 +16,7 @@ public class ChatMessage {
 
 	public static ChatMessage fromString(String s) {
 		int k = s.indexOf('\n');
-		if (k < 0) // TODO
+		if (k < 0)
 			return null;
 		ChatMessage chatMessage = new ChatMessage(s.substring(0, k), s.substring(k + 1));
 		return chatMessage;

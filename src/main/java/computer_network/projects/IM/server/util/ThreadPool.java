@@ -1,4 +1,4 @@
-package computer_network.projects.IM.server;
+package computer_network.projects.IM.server.util;
 
 import java.util.ArrayList;
 import java.util.List;

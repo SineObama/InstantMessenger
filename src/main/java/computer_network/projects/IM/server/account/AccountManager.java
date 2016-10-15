@@ -14,7 +14,6 @@ public final class AccountManager {
 	}
  
 	public static synchronized boolean remove(String name) {
-		// TODO looking for better implement
 		return accounts.remove(new Account(name));
 	}
 }

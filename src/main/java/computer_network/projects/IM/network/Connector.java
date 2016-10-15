@@ -6,9 +6,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import computer_network.projects.IM.exception.IMIOException;
+
 public class Connector {
 	private Socket socket;
-	
+
 	// 不知道这整个的用法对不对
 	private OutputStream o;
 	private InputStream i;
@@ -25,15 +27,14 @@ public class Connector {
 		}
 	}
 
-	public Message receive() throws ClassNotFoundException, IOException {
+	public Message receive() throws ClassNotFoundException, IOException, IMIOException {
 		Object obj;
 		synchronized (i) {
 			obj = new ObjectInputStream(i).readObject();
 		}
 		if (obj instanceof Message)
 			return (Message) obj;
-		else
-			return null;// TODO expected exception
+		throw new IMIOException("输入流中的对象不能转换为" + Message.class.getName());
 	}
 
 	public synchronized boolean isClosed() {
