@@ -17,7 +17,7 @@ public class IMClient {
 	private final PrintStream printStream = System.out;
 
 	private Connector connector = null;
-	private boolean connected = false;
+	private boolean connected = false;  // 多线程不安全……
 
 	private String ip = "127.0.0.1";
 	private int port = 8000;
@@ -72,6 +72,16 @@ public class IMClient {
 			printStream.println("未登陆");
 			return;
 		}
+		disconnect();
+	}
+
+	public void exit() {
+		disconnect();
+	}
+	
+	private void disconnect() {
+		if (connector == null)
+			return;
 		try {
 			connector.send(new Message(Type.logout, "OK"));
 			connector.close();
@@ -83,10 +93,6 @@ public class IMClient {
 		} finally {
 			connected = false;
 		}
-	}
-
-	public void exit() {
-		logout();
 	}
 
 	class Receiver extends Thread {

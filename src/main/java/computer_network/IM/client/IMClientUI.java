@@ -25,7 +25,7 @@ public class IMClientUI {
 			System.out.println("请输入两个参数: <ip> <port>");
 			return;
 		}
-		
+
 		// 从命令行读取指令并执行
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
@@ -34,6 +34,8 @@ public class IMClientUI {
 			if (userInput.equals("exit")) {
 				imClient.exit();
 				break;
+			} else if (userInput.equals("help")) {
+				System.out.print("登陆：login <用户名>\n" + "登出：logout\n" + "发送消息：send <用户名> <发送内容>\n" + "退出：exit\n");
 			} else if (userInput.equals("logout")) {
 				imClient.logout();
 			} else if (userInput.startsWith("login ")) {
