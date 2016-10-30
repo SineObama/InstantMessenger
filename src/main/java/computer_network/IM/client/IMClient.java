@@ -24,12 +24,13 @@ public class IMClient {
 
 	private Logger logger = new Logger("Client");
 
-	public IMClient(String _ip, String _port) {
-		ip = _ip;
-		port = Integer.parseInt(_port);
+	public IMClient(String ip, int port) {
+		this.ip = ip;
+		this.port = port;
 	}
 
 	public void login(String username) {
+		// “试”出来的Exception，不知道还有什么方法。
 		try {
 			if (!connected) {
 				connected = true;
@@ -40,6 +41,7 @@ public class IMClient {
 			printStream.println("正在发送登录请求。。。");
 			connector.send(new Message(Type.login, username));
 		} catch (ConnectException e) {
+			connected = false;
 			printStream.println("登录出错，请检查网络。");
 		} catch (SocketException e) {
 			connected = false;
